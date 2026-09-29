@@ -1,0 +1,251 @@
+TI E2E support forums
+
+Search
+User
+E2E™ design support >
+Forums
+Technical articles
+TI training
+Getting started
+简体中文
+SensorsSensors forum
+More
+Ask a related question
+What is a related question?
+ Ask a new question
+TI Thinks Resolved
+Locked
+15 replies
+8 answers
+33 subscribers
+2124 views
+0 members are here
+HDC1080
+HDC2010
+HDC2080
+SYSCONFIG
+energia
+Support feedback
+Tags
+More
+Related
+TMP102: Reading Temperature from Sensor is failing
+Venkatesh Konduru
+Part Number: TMP102 Hi, In one of Our Board ,we are using 4 Temperature sensors where ADD0 is connected to VCC,GND,SDA and SCL. Slave Addresss are 0x48,0x49,0x4A,0X4B As per above sequence, Sensors...
+INA229: No response on MISO line,i'm trying to read the device register ,mosi line is fine but their is no response from ina229 ,the attached image as the spi config
+Saiprakash Reddy Muthayagari
+Part Number: INA229
+LM95221: How to read local/remote1/remote2 temperatures with only two reading ?
+Eric LOUVEL
+Part Number: LM95221 Tool/software: Hi, Is it possible to retrieve the three temperatures (local, remote1 and remote2) in a single (or dual) I2C reading ? For now, I make two I2C readings MSB and LSB...
+IWRL6432: Reading data in ESP32
+karunakar r
+Part Number: IWRL6432 How to interface IWRL6432 mmWave sensor with ESP32 (without TI development board)?
+AWRL6844: How to read Die ID?
+Victor Park
+Part Number: AWRL6844 Hello team, Customer is curious how to read Die ID. They used below function but they have no idea which value has to be delivered as parameter c_devIndex. [firmware\mmwave_dfp...
+This thread has been locked.
+
+If you have a related question, please click the "Ask a related question" button in the top right corner. The newly created question will be automatically linked to this question.
+
+Original question:
+
+HDC2010: Reading data from HDC2010
+
+HDC2080: Reading from HDC2080/HDC2010
+Irmantas Jamas
+Irmantas Jamas
+Prodigy 10 points
+
+Part Number: HDC2080
+Other Parts Discussed in Thread: HDC2010, HDC1080, SYSCONFIG, MSP430WARE, ENERGIA
+
+Hello,
+
+I was not able to find a C language programming example or library for reading temperature and humidity values from TI HDC2080 sensor via I2C when using STM32 MCU (I use CubeIDE environment). As I understand HDC2080 and HDC2010 could be programmed identically according to their datasheets and application report: https://www.ti.com/lit/an/snaa312/snaa312.pdf?ts=1590217153055.  I am new to this, so application report did not help :/ I found an example only for HDC1080 which I assume has different application requirements. I would appreciate it if you could share any example or library in C language for reading temperature and humidity values using such sensor with me.
+
+Thank you  
+
+over 5 years ago
+Pavani Deepthi Tenneti
+Pavani Deepthi Tenneti over 5 years ago
+TI__Expert 3270 points
+Hello,
+
+We have some basic C code on sysconfig for the HDC2010 as well as the HDC2080. You can configure the registers and look at the equivalent C code on the side. 
+
+Please refer to this link for HDC2010: https://dev.ti.com/sysconfig/index.html?product=ascstudio&module=/ti/sensors/humiditysensor/HDC2010
+
+This is the link for HDC2080: https://dev.ti.com/sysconfig/index.html?product=ascstudio&module=/ti/sensors/humiditysensor/HDC2080
+
+I hope this helps!
+
+Regards,
+Pavani Tenneti
+
+Up
+0
+True
+Down
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Pavani Deepthi Tenneti
+Prodigy 10 points
+Hello,
+
+After creating a library for HDC2080 using provided Sysconfig link and including it to my empty project generated using STM32CubeMX (CubeIDE) I receive errors:
+
+c:\program files\stmicroelectronics\stm32cubeide\stm32cubeide_1.6.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924\tools\arm-none-eabi\bin\ld.exe: Temp and humidity sensor.elf section `.text' will not fit in region `FLASH'
+c:\program files\stmicroelectronics\stm32cubeide\stm32cubeide_1.6.0\stm32cubeide\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.win32_1.5.0.202011040924\tools\arm-none-eabi\bin\ld.exe: region `FLASH' overflowed by 8228 bytes
+collect2.exe: error: ld returned 1 exit status
+make: *** [makefile:65: New Project.elf] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete. 
+
+I copied generated HDC2080 library files and included them in main.c as in example:
+
+#include "HDC2080.h"
+
+#include "mcu.h" /* for mcu_msWait() */
+
+extern const HDC2080_Handle HDC2080_0;
+
+int main(void)
+{
+/* init sensors with values specified in ti_sensors_config.c */
+HDC2080_config(HDC2080_0);
+
+}
+
+Do you know what might be causing this problem?
+
+Thank you.
+
+Ren Schackmann
+Ren Schackmann over 5 years ago in reply to Irmantas Jamas
+TI__Mastermind 44295 points
+Hi Imantas,
+
+It looks like the error is indicating the compiled code doesn't fit in your MCU's flash memory. The smallest STM32 I found has 128kb of flash, and I'm able to test this HDC code in a MSP430 with the same amount of flash. This is generic C code that hasn't been optimized for any platform. It would seem you need to clean or optimize other aspects of your project, or use an STM32 with more flash. Note that this HDC software does require division and multiplication of float data type, which can be messy for an MCU. It's best if your MCU has a hardware multiplier available. It may be possible to optimize other aspects of this software, but the HDC is going to require float multiplication to convert it's output format to temperature in celsius and relative humidity in percent.
+
+thanks,
+
+ren
+
+Ren Schackmann
+Ren Schackmann over 5 years ago in reply to Ren Schackmann
+TI__Mastermind 44295 points
+Hi Imantas,
+
+Slight correction: there are functions in the HDC code that perform the conversion without the use of float data type. You can remove the float functions from HDC2080.c if you don't wish to use them. Removing them saved me 1kb, and my binary was 3kb without them.
+
+thanks,
+
+ren
+
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Ren Schackmann
+Prodigy 10 points
+Hello,
+
+Did you just remove float HDC2080_humToFloatRelative(uint16_t x) and float HDC2080_tempToFloatCelsius(uint16_t x) functions from HDC2080.c? For some reason it did not reduce Flash overflow. 
+
+Also, I noticed that mcu.c which I downloaded from Sysconfig has empty i2C and Delay functions. Could you share any examples of these functions in C language when using HDC20X0 sensor? In my case MCU is STM32 which has only 16KB Flash memory :|
+
+Thanks. 
+
+Ren Schackmann
+Ren Schackmann over 5 years ago in reply to Irmantas Jamas
+TI__Mastermind 44295 points
+Irmantas,
+
+You can remove the two functions that use/return float datatype in HDC2080.c and HDC2080.h. If you do that, you need to make sure your main.c or equivalent doesn't call these functions. You can also remove the two float variables at the top of main.c if you're using our main.c. 
+
+The functions are intentionally blank, because we're not able to support specific platforms. The user must fill out the functions for their platform. This code was tested on MSP430, where I have code for those functions. On MSP430, the complete working example compiles to only 3kb. You should be able to run the example on your MCU with 16kb flash even without removing the float functions.
+
+thanks,
+
+ren 
+
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Ren Schackmann
+Prodigy 10 points
+Hello,
+
+Where could instructions be found for exact MCU (in my case STM32L0) to create i2cInit, I2c_Transfer functions? For example, what did you use to write these functions for MSP430?
+
+Thank you.
+
+Josh Wyatt
+Josh Wyatt over 5 years ago in reply to Irmantas Jamas
+TI__Guru* 91206 points
+Dear Irmantas - 
+
+Much like our MSP430Ware and SimpleLink SDK offerings, STM offers SDK with an API based HAL for the peripherals (I2C included) on that MCU. I would suggest you refer back to that SDK and its documentation. 
+
+Ren Schackmann
+Ren Schackmann over 5 years ago in reply to Irmantas Jamas
+TI__Mastermind 44295 points
+Hi Irmantas,
+
+If you need help filling out mcu.c for your platform, you can reference this example for a popular platform. It should be easy to understand.
+
+e2e.ti.com/.../
+
+thanks,
+
+ren
+
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Ren Schackmann
+Prodigy 10 points
+Hello,
+
+Thank you for this example. Have you tried to test this mcu.c file with functions in C language? Could you share if you have?
+
+Thanks.
+
+Ren Schackmann
+Ren Schackmann over 5 years ago in reply to Irmantas Jamas
+TI__Mastermind 44295 points
+Irmantas,
+
+Those are C functions in Arduino libraries. You will have to use libraries appropriate for your platform.
+
+thanks,
+
+ren
+
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Pavani Deepthi Tenneti
+Prodigy 10 points
+Hello,
+
+I tried to use this default HDC2080 code to read temperature with i2C functions implemented according to Arduino example (https://e2e.ti.com/support/sensors/f/sensors-forum/990448/faq-sysconfig-ascstudio-mcu-c-example-code-for-arduino-i2c/). For some reason HDC2080_tempToIntCelsius function always return a value of 125 which is maximum for this sensor (Temperature Threshold High). The same value is returned when using HDC2080_tempToFloatCelsius function. Also tried to measure humidity and received the maximum relative humidity value (100). Do you have any ideas what might be wrong?
+
+Thank you.
+
+Josh Wyatt
+Josh Wyatt over 5 years ago in reply to Irmantas Jamas
+TI__Guru* 91206 points
+Irmantas - 
+
+Would it help you to use an Energia/Ardunio sketch?
+
+Irmantas Jamas
+Irmantas Jamas over 5 years ago in reply to Josh Wyatt
+Prodigy 10 points
+Hello,
+
+Yes, it might help if you could share them.
+
+Thank you.
+
+Josh Wyatt
+Josh Wyatt over 5 years ago in reply to Irmantas Jamas
+TI__Guru* 91206 points
+Irmantas - 
+
+Great - here is working sketch for the HDC2 parts. 
+
+https://e2e.ti.com/cfs-file/__key/communityserver-discussions-components-files/1023/HDC2_5F00_one_5F00_shot_5F00_01_5F00_2021_5F00_41.ino
+
+xPress Alt K to view current shortcuts.0
