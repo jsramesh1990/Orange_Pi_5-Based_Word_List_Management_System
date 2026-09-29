@@ -1,227 +1,541 @@
 # Find Words
 
-A lightweight C++ toolkit for building and maintaining clean, deduplicated word lists from raw text. Perfect for search engines, and linguistic research.
+### An Automated Word List Management System Using Orange Pi 5
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![C++](https://img.shields.io/badge/C++-17-blue.svg)](https://isocpp.org/)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-brightgreen.svg)](https://en.wikipedia.org/wiki/Portability)
+**Clean • Deduplicate • Update • Sort**
 
-##  Table of Contents
-- [Overview](#-overview)
-- [Features](#-features)
-- [Workflow](#-workflow)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Build System](#-build-system)
-- [Future Roadmap](#-future-roadmap)
-- [Contributing](#-contributing)
-- [License](#-license)
-
-##  Overview
-
-Wordlist Manager processes raw text files into clean, deduplicated word lists. It's designed for incremental updates, allowing you to maintain a growing master dictionary without manual cleanup. The toolkit is modular, efficient, and ideal for building custom word lists for various applications.
-
-##  Features
-
-| Utility | Purpose | Input | Output |
-|---------|---------|-------|--------|
-| **clean_text** | Removes special characters, normalizes text | `input.txt` | `clean_text` |
-| **filter_duplicates** | Removes duplicate words | `clean_text` | `filtered.txt` |
-| **update_stored** | Merges new words into master list | `filtered.txt`, `stored.txt` | `stored.txt` (updated) |
-| **sort_stored** | Alphabetically sorts word list | `stored.txt` | `stored.txt` (sorted) |
-
-##  Workflow
-
-```mermaid
-graph TD
-    A[input.txt<br/>Raw text file] --> B[clean_text]
-    B --> C[clean_text<br/>One word per line]
-    C --> D[filter_duplicates]
-    D --> E[filtered.txt<br/>Unique words]
-    E --> F[update_stored]
-    F --> G{stored.txt exists?}
-    G -->|Yes| H[Compare & Merge]
-    G -->|No| I[Create new]
-    H --> J[stored.txt<br/>Updated master list]
-    I --> J
-    
-    J --> K{Need sorting?}
-    K -->|Yes| L[sort_stored]
-    K -->|No| M[Final wordlist]
-    L --> M
-```
-
-### Typical Usage Flow:
-1. **Prepare**: Place raw text in `input.txt`
-2. **Clean**: Run `./clean_text` → creates `clean_text` file
-3. **Deduplicate**: Run `./filter_duplicates` → creates `filtered.txt`
-4. **Update**: Run `./update_stored` → merges new words into `stored.txt`
-5. **(Optional)**: Run `./sort_stored` to alphabetize `stored.txt`
-
-##  Installation
-
-### Prerequisites
-- GCC/G++ compiler (C++17 compatible)
-- GNU Make
-- Linux, macOS, or WSL (Windows Subsystem for Linux)
-
-### Building from Source
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/wordlist-manager.git
-cd wordlist-manager
-
-# Compile all utilities
-make
-
-# Verify build
-ls -la clean_text filter_duplicates update_stored sort_stored
-```
-
-### Cleaning Build Files
-```bash
-# Remove compiled binaries and intermediate files
-make clean
-```
-
-##  Usage
-
-### Basic Pipeline
-```bash
-# 1. Prepare your input
-echo "Hello world! Hello again. Testing 1, 2, 3." > input.txt
-
-# 2. Run the full pipeline
-./clean_text
-./filter_duplicates
-./update_stored
-
-# 3. Check results
-cat stored.txt
-```
-
-### Output Example
-**input.txt:**
-```
-Hello world! Testing... Testing 1, 2, 3. Hello again!
-```
-
-**stored.txt:**
-```
-Hello
-world
-Testing
-1
-2
-3
-again
-```
-
-### Incremental Updates
-The real power comes from repeated use:
-```bash
-# Add more text to input.txt
-echo "New words: algorithm, blockchain, cryptocurrency" >> input.txt
-
-# Run pipeline again - only new words get added
-./clean_text
-./filter_duplicates
-./update_stored
-
-# stored.txt now contains original words + new unique words
-```
-
-##  Build System
-
-The `Makefile` provides the following targets:
-
-| Target | Description |
-|--------|-------------|
-| `make` / `make all` | Compiles all four utilities |
-| `make clean_text` | Compiles only the text cleaner |
-| `make filter_duplicates` | Compiles only the duplicate filter |
-| `make update_stored` | Compiles only the update utility |
-| `make sort_stored` | Compiles only the sorting utility |
-| `make clean` | Removes all compiled binaries |
-
-### Compilation Details
-- Each utility compiles to a standalone binary
-- No external dependencies required
-- Optimized with `-O2` flag for performance
-- C++17 standard for modern features
-
-## 🗺️ Future Roadmap
-
-### Phase 1: Code Quality & Stability (Next Release)
--  **Refactor** monolithic .cpp files into modular functions
--  **Add comprehensive error handling** for file operations
--  **Implement unit tests** for each processing stage
--  **Optimize performance** with buffer-based I/O for large files
--  **Enhance memory safety** and eliminate edge-case crashes
-
-### Phase 2: Logging & Debug Support
--  **Verbose mode** (`--verbose` flag) for detailed processing info
--  **Debug mode** for troubleshooting text processing issues
--  **Colored terminal output** for better readability
--  **Progress indicators** for large file processing
-
-### Phase 3: Enhanced Features (Planned)
-- **Multilingual support** with Unicode character handling
-- **Stemming/Lemmatization** options for word normalization
-- **Frequency counting** to track word usage
-- **Configurable filters** for excluding specific word patterns
-- **Batch processing** for multiple input files
-- **Docker containerization** for easy deployment
-
-### Phase 4: Integration & Distribution
-- **Package manager support** (Homebrew, apt, yum)
-- **Python bindings** for use in NLP pipelines
-- **Web interface** for non-technical users
-- **Plugin system** for custom text processors
-
-##  Contributing
-
-Contributions are welcome! Here's how to help:
-
-1. **Report Bugs**: Open an issue with detailed reproduction steps
-2. **Suggest Features**: Share your ideas for improvements
-3. **Submit Code**: 
-   - Fork the repository
-   - Create a feature branch
-   - Add tests for new functionality
-   - Submit a pull request
-
-### Development Setup
-```bash
-# Clone with submodules (if any)
-git clone --recursive https://github.com/yourusername/wordlist-manager.git
-
-# Create a development branch
-git checkout -b feature/your-feature-name
-
-# Make changes, then test
-make clean && make
-./run_tests.sh  # Future test suite
-
-# Commit and push
-git commit -m "Description of changes"
-git push origin feature/your-feature-name
-```
-
-##  Acknowledgments
-
-- Inspired by the need for clean word lists in NLP projects
-- Built with simplicity and efficiency in mind
-- Thanks to all contributors who help improve this tool
+<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Orange%20Pi%205-orange" alt="Orange Pi 5">
+  <img src="https://img.shields.io/badge/Language-C%2B%2B17-blue" alt="C++17">
+  <img src="https://img.shields.io/badge/OS-Linux-green" alt="Linux">
+  <img src="https://img.shields.io/badge/Build-Make-yellow" alt="Make">
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="MIT License">
+</p>
 
 ---
 
-**Quick Start Recap:**
+## Overview
+
+**Find Words** is a lightweight C++17-based word-list management system designed to run on the **Orange Pi 5**.
+
+The project takes raw text as input and automatically processes it through multiple stages to create and maintain a clean, deduplicated, and sorted master word list.
+
+The system is designed for applications such as:
+
+* Search systems
+* Dictionary and vocabulary management
+* NLP preprocessing
+* Text processing
+* Linguistic research
+* Embedded Linux applications
+
+---
+
+## System Architecture
+
+```text
+                         ┌─────────────────────┐
+                         │      Input Text     │
+                         │      input.txt      │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │     clean_text      │
+                         │                     │
+                         │ Remove unwanted     │
+                         │ characters / clean  │
+                         │ input text          │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │ filter_duplicates   │
+                         │                     │
+                         │ Remove duplicate    │
+                         │ words               │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │    update_stored    │
+                         │                     │
+                         │ Merge new words     │
+                         │ into master list    │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │     sort_stored     │
+                         │                     │
+                         │ Sort master word    │
+                         │ list alphabetically │
+                         └──────────┬──────────┘
+                                    │
+                                    ▼
+                         ┌─────────────────────┐
+                         │     stored.txt      │
+                         │                     │
+                         │ Master Word List    │
+                         └─────────────────────┘
+```
+
+---
+
+## Hardware Platform
+
+The project is designed for the **Orange Pi 5**, providing an ARM-based Linux environment for running the C++ application.
+
+```text
+┌─────────────────────────────────────┐
+│             Orange Pi 5             │
+│                                     │
+│  ┌─────────────┐  ┌──────────────┐  │
+│  │   Linux OS  │  │  C++17 App   │  │
+│  └─────────────┘  └──────────────┘  │
+│                                     │
+│          Word Processing            │
+│               │                     │
+│               ▼                     │
+│          stored.txt                 │
+└─────────────────────────────────────┘
+```
+
+### Recommended Hardware
+
+| Component       | Recommendation   |
+| --------------- | ---------------- |
+| Processor Board | Orange Pi 5      |
+| RAM             | 8 GB recommended |
+| OS              | Linux ARM64      |
+| Storage         | microSD / eMMC   |
+| Large Database  | USB SSD          |
+| Compiler        | GCC/G++          |
+| Language        | C++17            |
+| Build System    | GNU Make         |
+
+---
+
+## Features
+
+### Text Cleaning
+
+Processes raw text and removes unwanted characters according to the current cleaning implementation.
+
+### Duplicate Filtering
+
+Removes duplicate words before they are added to the master word list.
+
+### Incremental Updates
+
+New words can be added to an existing `stored.txt` without manually rebuilding the complete database.
+
+### Sorting
+
+The stored word list can be alphabetically sorted.
+
+### Lightweight
+
+The application uses standard C++ and does not require external runtime libraries beyond the normal Linux development/runtime environment.
+
+### Modular Design
+
+Each processing stage is implemented as a separate executable:
+
+```text
+clean_text
+filter_duplicates
+update_stored
+sort_stored
+```
+
+---
+
+## Project Structure
+
+```text
+Find_Words/
+│
+├── README.md
+├── LICENSE
+├── Makefile
+│
+├── clean_text.cpp
+├── filter_duplicates.cpp
+├── update_stored.cpp
+├── sort_stored.cpp
+│
+├── input.txt
+├── filtered.txt
+├── stored.txt
+└── output.txt
+```
+
+Documentation:
+
+```text
+docs/
+├── hardware.md
+├── build_board.md
+└── deploy_find_words.md
+```
+
+---
+
+## Requirements
+
+### Hardware
+
+* Orange Pi 5
+* microSD card or eMMC
+* Compatible power supply
+* Optional USB SSD
+* Network connection
+
+### Software
+
+A Linux-based ARM64 environment is recommended.
+
+Install the required development tools:
+
+```bash
+sudo apt update
+sudo apt install -y build-essential git
+```
+
+Verify:
+
+```bash
+g++ --version
+make --version
+git --version
+```
+
+---
+
+## Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+```
+
+Enter the project directory:
+
+```bash
+cd Find_Words
+```
+
+### 2. Build
+
+Compile all components:
+
 ```bash
 make
-echo "Your text here" > input.txt
-./clean_text && ./filter_duplicates && ./update_stored
+```
+
+Verify the executables:
+
+```bash
+ls -l clean_text
+ls -l filter_duplicates
+ls -l update_stored
+ls -l sort_stored
+```
+
+### 3. Prepare Input
+
+Create an input file:
+
+```bash
+echo "Hello world! Hello again. Testing word processing." > input.txt
+```
+
+### 4. Run the Pipeline
+
+```bash
+./clean_text && \
+./filter_duplicates && \
+./update_stored && \
+./sort_stored
+```
+
+### 5. View the Result
+
+```bash
 cat stored.txt
 ```
 
-For questions, issues, or suggestions, please open an issue on GitHub.
+The `stored.txt` file now contains the processed word list.
+
+---
+
+## Incremental Word Updates
+
+One of the main features of Find Words is the ability to maintain a growing master word list.
+
+Add additional text:
+
+```bash
+echo "algorithm blockchain cryptocurrency Orange Pi" >> input.txt
+```
+
+Run the pipeline again:
+
+```bash
+./clean_text && \
+./filter_duplicates && \
+./update_stored && \
+./sort_stored
+```
+
+View the updated database:
+
+```bash
+cat stored.txt
+```
+
+New words can therefore be incorporated into the existing master list over time.
+
+---
+
+## Makefile
+
+The project uses GNU Make to simplify compilation.
+
+### Build Everything
+
+```bash
+make
+```
+
+### Build Individual Components
+
+```bash
+make clean_text
+make filter_duplicates
+make update_stored
+make sort_stored
+```
+
+### Remove Compiled Binaries
+
+```bash
+make clean
+```
+
+---
+
+## Testing
+
+A simple functional test can be performed using:
+
+```bash
+echo "Orange Pi 5 Find Words Find Words test" > input.txt
+```
+
+Run:
+
+```bash
+./clean_text && \
+./filter_duplicates && \
+./update_stored && \
+./sort_stored
+```
+
+Then:
+
+```bash
+cat stored.txt
+```
+
+Check that the expected words are present and duplicate processing behaves according to the current implementation.
+
+---
+
+## Documentation
+
+Detailed project documentation is available here:
+
+| Document                                            | Description                                        |
+| --------------------------------------------------- | -------------------------------------------------- |
+| [`hardware.md`](docs/hardware.md)                   | Orange Pi 5 hardware and system architecture       |
+| [`build_board.md`](docs/build_board.md)             | Preparing and building the Orange Pi 5 environment |
+| [`deploy_find_words.md`](docs/deploy_find_words.md) | Deploying, compiling, storage setup, and testing   |
+
+---
+
+## How It Works
+
+The project separates word processing into independent stages.
+
+### Stage 1 — Clean
+
+```text
+input.txt
+    ↓
+clean_text
+```
+
+Raw text is processed and unwanted characters are removed according to the implementation.
+
+### Stage 2 — Deduplicate
+
+```text
+clean_text
+    ↓
+filter_duplicates
+    ↓
+filtered.txt
+```
+
+Duplicate words are removed.
+
+### Stage 3 — Update
+
+```text
+filtered.txt
+       +
+stored.txt
+       ↓
+update_stored
+       ↓
+stored.txt
+```
+
+New words are merged into the existing master list.
+
+### Stage 4 — Sort
+
+```text
+stored.txt
+    ↓
+sort_stored
+    ↓
+stored.txt
+```
+
+The master list is sorted.
+
+---
+
+## Project Goals
+
+The main goal of this project is to create a simple and efficient **embedded Linux word-list processing system**.
+
+Future improvements may include:
+
+* [ ] Unicode / multilingual text support
+* [ ] Word-frequency counting
+* [ ] Stemming and lemmatization
+* [ ] Configurable word filters
+* [ ] Large-file optimization
+* [ ] Better error handling
+* [ ] Unit testing
+* [ ] Logging and debug mode
+* [ ] Batch processing
+* [ ] Automatic startup on Orange Pi 5
+* [ ] Web-based management interface
+* [ ] Python API
+* [ ] Database-backed word storage
+
+---
+
+## Development Roadmap
+
+```text
+Phase 1
+│
+├── Core C++ processing
+├── File-based word storage
+└── Orange Pi 5 deployment
+        │
+        ▼
+Phase 2
+│
+├── Error handling
+├── Unit tests
+├── Logging
+└── Performance improvements
+        │
+        ▼
+Phase 3
+│
+├── Unicode support
+├── Frequency analysis
+├── NLP features
+└── Configurable processing
+        │
+        ▼
+Phase 4
+│
+├── Web interface
+├── Python bindings
+├── Database support
+└── Production deployment
+```
+
+---
+
+## Deployment Architecture
+
+The intended embedded deployment is:
+
+```text
+                    ┌──────────────────────┐
+                    │     Input Source     │
+                    │                      │
+                    │ File / USB / Network │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │      Orange Pi 5     │
+                    │                      │
+                    │      Linux ARM64     │
+                    │          │           │
+                    │          ▼           │
+                    │    Find Words C++    │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │      Word Storage    │
+                    │                      │
+                    │      stored.txt      │
+                    │       / SSD          │
+                    └──────────────────────┘
+```
+
+---
+
+## Contributing
+
+Contributions are welcome.
+
+To contribute:
+
+```bash
+git clone <YOUR_REPOSITORY_URL>
+cd Find_Words
+
+git checkout -b feature/your-feature
+
+make clean
+make
+```
+
+After testing your changes, submit a pull request.
+
+---
+
+## Project
+
+**Find Words**
+
+> An Automated Word List Management System Using Orange Pi 5
+
+Built with:
+
+**C++17 · Linux · GNU Make · Orange Pi 5**
